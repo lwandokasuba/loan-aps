@@ -14,7 +14,6 @@ async function bootstrap() {
     .setTitle('Loan Application System')
     .setDescription('The loan application system API description')
     .setVersion('1.0')
-    .addTag('loan')
     .build();
   const documentFactory = () => SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api', app, documentFactory);
