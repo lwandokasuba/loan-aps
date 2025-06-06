@@ -43,10 +43,10 @@ export class ClientService {
     });
   }
 
-  async findOne(id: string) {
+  async findOne(id: string, includeLoans: boolean = false) {
     this.logger.log(`Fetching client with ID: ${id}`);
     return await this.clientsRepository
-      .findOne({ where: { id } })
+      .findOne({ where: { id }, relations: includeLoans ? ['loans'] : [] })
       .catch((error: any) => {
         this.logger.error(
           `Error fetching client with ID ${id}: ${error?.message}`,

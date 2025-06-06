@@ -30,6 +30,11 @@ export class ClientController {
     return await this.clientService.findOne(id);
   }
 
+  @Get(':id/loans')
+  async findOneWithLoans(@Param('id') id: string) {
+    return await this.clientService.findOne(id);
+  }
+
   @Patch(':id')
   async update(
     @Param('id') id: string,
