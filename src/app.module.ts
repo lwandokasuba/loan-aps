@@ -2,6 +2,8 @@ import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ClientModule } from './client/client.module';
 import { Client } from './client/entities/client.entity';
+import { LoanModule } from './loan/loan.module';
+import { Loan } from './loan/entities/loan.entity';
 
 @Module({
   imports: [
@@ -12,10 +14,12 @@ import { Client } from './client/entities/client.entity';
       username: process.env.DATABASE_USER || 'postgres',
       password: process.env.DATABASE_PASSWORD || 'password',
       database: process.env.DATABASE_NAME || 'mydatabase',
-      entities: [Client],
+      entities: [Client, Loan],
+      logging: true,
       synchronize: process.env.NODE_ENV !== 'production',
     }),
     ClientModule,
+    LoanModule,
   ],
 })
 export class AppModule {}
