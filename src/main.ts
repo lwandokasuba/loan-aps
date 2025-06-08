@@ -2,6 +2,7 @@ import { NestFactory } from '@nestjs/core';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { AppModule } from './app.module';
 import { ConsoleLogger } from '@nestjs/common';
+import { GlobalExceptionFilter } from './utils/globalExceptionFilter';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, {
@@ -9,6 +10,8 @@ async function bootstrap() {
       prefix: 'Loan Application System',
     }),
   });
+
+  app.useGlobalFilters(new GlobalExceptionFilter());
 
   const config = new DocumentBuilder()
     .setTitle('Loan Application System')
