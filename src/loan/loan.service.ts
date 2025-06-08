@@ -45,22 +45,18 @@ export class LoanService {
         return await transaction.save(Loan, createLoanDto);
       })
       .catch((error: any) => {
-        this.logger.error(
-          `Error creating loan: ${error?.message}`,
-          error?.stack,
-        );
-        throw error;
+        const message = `Error creating loan: ${error?.detail ?? error?.message}`;
+        this.logger.error(message, JSON.stringify(error));
+        throw new Error(message);
       });
   }
 
   async findAll() {
     this.logger.log('Fetching all loans');
     return await this.loansRepository.find().catch((error: any) => {
-      this.logger.error(
-        `Error fetching loans: ${error?.message}`,
-        error?.stack,
-      );
-      throw error;
+      const message = `Error fetching loans: ${error?.detail ?? error?.message}`;
+      this.logger.error(message, JSON.stringify(error));
+      throw new Error(message);
     });
   }
 
@@ -69,11 +65,9 @@ export class LoanService {
     return await this.loansRepository
       .find({ where: { status: LoanStatus.ACTIVE, id } })
       .catch((error: any) => {
-        this.logger.error(
-          `Error fetching active loans for ${id}: ${error?.message}`,
-          error?.stack,
-        );
-        throw error;
+        const message = `Error fetching active loans for ${id}: ${error?.detail ?? error?.message}`;
+        this.logger.error(message, JSON.stringify(error));
+        throw new Error(message);
       });
   }
 
@@ -82,11 +76,9 @@ export class LoanService {
     return await this.loansRepository
       .findOne({ where: { id } })
       .catch((error: any) => {
-        this.logger.error(
-          `Error fetching loan with ID ${id}: ${error?.message}`,
-          error?.stack,
-        );
-        throw error;
+        const message = `Error fetching loan with ID ${id}: ${error?.detail ?? error?.message}`;
+        this.logger.error(message, JSON.stringify(error));
+        throw new Error(message);
       });
   }
 
@@ -124,11 +116,9 @@ export class LoanService {
           return await transaction.update(Loan, { id }, updateLoanDto);
         })
         .catch((error) => {
-          this.logger.error(
-            `Error updating loan with ID ${id}: ${error?.message}`,
-            error?.stack,
-          );
-          throw error;
+          const message = `Error updating loan with ID ${id}: ${error?.detail ?? error?.message}`;
+          this.logger.error(message, JSON.stringify(error));
+          throw new Error(message);
         });
     }
 
@@ -136,11 +126,9 @@ export class LoanService {
       .update(id, updateLoanDto)
       .then(() => this.findOne(id))
       .catch((error: any) => {
-        this.logger.error(
-          `Error updating loan with ID ${id}: ${error?.message}`,
-          error?.stack,
-        );
-        throw error;
+        const message = `Error updating loan with ID ${id}: ${error?.detail ?? error?.message}`;
+        this.logger.error(message, JSON.stringify(error));
+        throw new Error(message);
       });
   }
 
@@ -150,11 +138,9 @@ export class LoanService {
       .delete(id)
       .then(() => ({ message: `Loan with ID ${id} removed successfully` }))
       .catch((error: any) => {
-        this.logger.error(
-          `Error removing loan with ID ${id}: ${error?.message}`,
-          error?.stack,
-        );
-        throw error;
+        const message = `Error removing loan with ID ${id}:${error?.detail ?? error?.message}`;
+        this.logger.error(message, JSON.stringify(error));
+        throw new Error(message);
       });
   }
 }

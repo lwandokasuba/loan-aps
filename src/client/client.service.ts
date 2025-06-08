@@ -24,22 +24,18 @@ export class ClientService {
     return await this.clientsRepository
       .save(createClientDto)
       .catch((error: any) => {
-        this.logger.error(
-          `Error creating client: ${error?.message}`,
-          error?.stack,
-        );
-        throw error;
+        const message = `Error creating client: ${error?.detail ?? error?.message}`;
+        this.logger.error(message, JSON.stringify(error));
+        throw new Error(message);
       });
   }
 
   async findAll() {
     this.logger.log('Fetching all clients');
     return await this.clientsRepository.find().catch((error: any) => {
-      this.logger.error(
-        `Error fetching clients: ${error?.message}`,
-        error?.stack,
-      );
-      throw error;
+      const message = `Error fetching clients: ${error?.detail ?? error?.message}`;
+      this.logger.error(message, JSON.stringify(error));
+      throw new Error(message);
     });
   }
 
@@ -48,11 +44,9 @@ export class ClientService {
     return await this.clientsRepository
       .findOne({ where: { id }, relations: includeLoans ? ['loans'] : [] })
       .catch((error: any) => {
-        this.logger.error(
-          `Error fetching client with ID ${id}: ${error?.message}`,
-          error?.stack,
-        );
-        throw error;
+        const message = `Error fetching client with ID ${id}: ${error?.detail ?? error?.message}`;
+        this.logger.error(message, JSON.stringify(error));
+        throw new Error(message);
       });
   }
 
@@ -66,11 +60,9 @@ export class ClientService {
         this.logger.log(`Client with ID ${id} updated successfully`);
       })
       .catch((error: any) => {
-        this.logger.error(
-          `Error updating client with ID ${id}: ${error?.message}`,
-          error?.stack,
-        );
-        throw error;
+        const message = `Error updating client with ID ${id}: ${error?.detail ?? error?.message}`;
+        this.logger.error(message, JSON.stringify(error));
+        throw new Error(message);
       });
   }
 
@@ -82,11 +74,9 @@ export class ClientService {
         this.logger.log(`Client with ID ${id} removed successfully`);
       })
       .catch((error: any) => {
-        this.logger.error(
-          `Error removing client with ID ${id}: ${error?.message}`,
-          error?.stack,
-        );
-        throw error;
+        const message = `Error removing client with ID ${id}: ${error?.detail ?? error?.message}`;
+        this.logger.error(message, JSON.stringify(error));
+        throw new Error(message);
       });
   }
 }
