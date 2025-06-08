@@ -11,7 +11,15 @@ export enum LoanStatus {
 
 @Entity('loans')
 export class Loan extends BaseEntity {
-  @Column({ type: 'money' })
+  @Column({
+    type: 'decimal',
+    transformer: {
+      // Transformer for database to entity (reading from DB)
+      from: (value: string | number) => parseFloat(value as string),
+      // Transformer for entity to database (writing to DB)
+      to: (value: number) => (value !== null ? value : null), // Ensure 2 decimal places when saving
+    },
+  })
   amount: number;
 
   @Column({ type: 'int' })

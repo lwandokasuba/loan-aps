@@ -4,6 +4,7 @@ import {
   IsEnum,
   IsNotEmpty,
   IsNumber,
+  IsOptional,
   IsUUID,
   Max,
   Min,
@@ -24,10 +25,11 @@ export class CreateLoanDto {
   @IsNotEmpty()
   interest_rate: number;
 
-  @ApiProperty()
+  @ApiProperty({ enum: LoanStatus })
+  @IsOptional()
   @IsEnum(LoanStatus)
   @IsNotEmpty()
-  status: LoanStatus;
+  status?: LoanStatus;
 
   @ApiProperty()
   @IsUUID()

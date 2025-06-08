@@ -56,8 +56,14 @@ export class ClientService {
     );
     return await this.clientsRepository
       .update(id, updateClientDto)
-      .then(() => {
-        this.logger.log(`Client with ID ${id} updated successfully`);
+      .then(async (result) => {
+        if (result?.affected === 0) {
+          throw new Error('No changes made.');
+        }
+        this.logger.log(
+          `Client with ID ${id} updated successfully, ${result.affected} affected`,
+        );
+        return await this.findOne(id);
       })
       .catch((error: any) => {
         const message = `Error updating client with ID ${id}: ${error?.detail ?? error?.message}`;
@@ -70,8 +76,13 @@ export class ClientService {
     this.logger.log(`Removing client with ID: ${id}`);
     return await this.clientsRepository
       .delete(id)
-      .then(() => {
-        this.logger.log(`Client with ID ${id} removed successfully`);
+      .then((result) => {
+        if (result?.affected === 0) {
+          throw new Error('No changes made.');
+        }
+        this.logger.log(
+          `Client with ID ${id} removed successfully, ${result?.affected} affected`,
+        );
       })
       .catch((error: any) => {
         const message = `Error removing client with ID ${id}: ${error?.detail ?? error?.message}`;

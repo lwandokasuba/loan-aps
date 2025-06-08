@@ -30,7 +30,9 @@ export class LoanService {
         });
 
         if (!client) {
-          throw new Error(`loan with ID ${createLoanDto.client_id} not found.`);
+          throw new Error(
+            `loan with client ID ${createLoanDto.client_id} not found.`,
+          );
         }
 
         if (
@@ -38,7 +40,7 @@ export class LoanService {
           client?.loans?.some((loan) => loan.status === LoanStatus.ACTIVE)
         ) {
           throw new Error(
-            'Client already has an active loan. Cannot update loan to active',
+            'Client already has an active loan. Cannot create loan with status active',
           );
         }
 
@@ -87,22 +89,22 @@ export class LoanService {
       `Updating loan with ID ${id} with data: ${JSON.stringify(updateLoanDto)}`,
     );
 
-    if (updateLoanDto.status === LoanStatus.ACTIVE) {
-      return await this.loansRepository.manager
-        .transaction(async (transaction) => {
-          const loan = await transaction.findOne(Loan, {
-            where: { id },
-            relations: { client: true },
-          });
+    return await this.loansRepository.manager
+      .transaction(async (transaction) => {
+        const loan = await transaction.findOne(Loan, {
+          where: { id },
+          relations: { client: true },
+        });
 
-          if (!loan) {
-            throw new Error(`loan with ID ${id} not found.`);
-          }
+        if (!loan) {
+          throw new Error(`loan with ID ${id} not found.`);
+        }
 
-          if (!loan?.client_id || !loan?.client) {
-            throw new Error(`loan with ID ${id} does not have a client.`);
-          }
+        if (!loan?.client_id || !loan?.client) {
+          throw new Error(`loan with ID ${id} does not have a client.`);
+        }
 
+        if (updateLoanDto?.status === LoanStatus.ACTIVE) {
           const activeLoans = await transaction.find(Loan, {
             where: { status: LoanStatus.ACTIVE, client_id: loan.client_id },
           });
@@ -112,20 +114,25 @@ export class LoanService {
               'Client already has an active loan. Cannot update loan to active',
             );
           }
+        }
 
-          return await transaction.update(Loan, { id }, updateLoanDto);
-        })
-        .catch((error) => {
-          const message = `Error updating loan with ID ${id}: ${error?.detail ?? error?.message}`;
-          this.logger.error(message, JSON.stringify(error));
-          throw new Error(message);
-        });
-    }
+        if (updateLoanDto?.amount) {
+          loan.amount = updateLoanDto.amount;
+        }
+        if (updateLoanDto?.interest_rate) {
+          loan.interest_rate = updateLoanDto.interest_rate;
+        }
+        if (updateLoanDto?.status) {
+          loan.status = updateLoanDto.status;
+        }
 
-    return await this.loansRepository
-      .update(id, updateLoanDto)
-      .then(() => this.findOne(id))
-      .catch((error: any) => {
+        return await transaction.save(Loan, loan);
+      })
+      .then((loan) => {
+        this.logger.log(`Loan with ID ${id} updated successfully`);
+        return loan;
+      })
+      .catch((error) => {
         const message = `Error updating loan with ID ${id}: ${error?.detail ?? error?.message}`;
         this.logger.error(message, JSON.stringify(error));
         throw new Error(message);
@@ -136,7 +143,14 @@ export class LoanService {
     this.logger.log(`Removing loan with ID: ${id}`);
     return await this.loansRepository
       .delete(id)
-      .then(() => ({ message: `Loan with ID ${id} removed successfully` }))
+      .then((result) => {
+        if (result?.affected === 0) {
+          throw new Error('No changes made.');
+        }
+        this.logger.log(
+          `Loan with ID ${id} removed successfully, ${result?.affected} affected`,
+        );
+      })
       .catch((error: any) => {
         const message = `Error removing loan with ID ${id}:${error?.detail ?? error?.message}`;
         this.logger.error(message, JSON.stringify(error));
