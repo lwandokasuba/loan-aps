@@ -1,9 +1,10 @@
-import { Module } from '@nestjs/common';
+import { Module, ValidationPipe } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ClientModule } from './client/client.module';
 import { Client } from './client/entities/client.entity';
 import { LoanModule } from './loan/loan.module';
 import { Loan } from './loan/entities/loan.entity';
+import { APP_PIPE } from '@nestjs/core';
 
 @Module({
   imports: [
@@ -20,6 +21,12 @@ import { Loan } from './loan/entities/loan.entity';
     }),
     ClientModule,
     LoanModule,
+  ],
+  providers: [
+    {
+      provide: APP_PIPE,
+      useClass: ValidationPipe,
+    },
   ],
 })
 export class AppModule {}

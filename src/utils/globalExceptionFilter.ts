@@ -49,7 +49,10 @@ export class GlobalExceptionFilter implements ExceptionFilter {
         code = exception.code;
         break;
       default:
-        status = HttpStatus.INTERNAL_SERVER_ERROR;
+        status =
+          exception?.response?.statusCode ?? HttpStatus.INTERNAL_SERVER_ERROR;
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+        message = exception?.response?.message?.toString() ?? undefined;
     }
 
     response
