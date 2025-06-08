@@ -4,7 +4,7 @@ import { CreateLoanDto } from './dto/create-loan.dto';
 import { UpdateLoanDto } from './dto/update-loan.dto';
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Loan } from './entities/loan.entity';
+import { Loan, LoanStatus } from './entities/loan.entity';
 
 @Injectable()
 export class LoanService {
@@ -41,6 +41,19 @@ export class LoanService {
       );
       throw error;
     });
+  }
+
+  async findActive(id: string) {
+    this.logger.log(`Fetching all active loans for ${id}`);
+    return await this.loansRepository
+      .find({ where: { status: LoanStatus.ACTIVE, id } })
+      .catch((error: any) => {
+        this.logger.error(
+          `Error fetching active loans for ${id}: ${error?.message}`,
+          error?.stack,
+        );
+        throw error;
+      });
   }
 
   async findOne(id: string) {
