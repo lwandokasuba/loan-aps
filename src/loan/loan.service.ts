@@ -94,6 +94,44 @@ export class LoanService {
     this.logger.log(
       `Updating loan with ID ${id} with data: ${JSON.stringify(updateLoanDto)}`,
     );
+
+    if (updateLoanDto.status === LoanStatus.ACTIVE) {
+      return await this.loansRepository.manager
+        .transaction(async (transaction) => {
+          const loan = await transaction.findOne(Loan, {
+            where: { id },
+            relations: { client: true },
+          });
+
+          if (!loan) {
+            throw new Error(`loan with ID ${id} not found.`);
+          }
+
+          if (!loan?.client_id || !loan?.client) {
+            throw new Error(`loan with ID ${id} does not have a client.`);
+          }
+
+          const activeLoans = await transaction.find(Loan, {
+            where: { status: LoanStatus.ACTIVE, client_id: loan.client_id },
+          });
+
+          if (activeLoans?.length > 0) {
+            throw new Error(
+              'Client already has an active loan. Cannot update loan to active',
+            );
+          }
+
+          return await transaction.update(Loan, { id }, updateLoanDto);
+        })
+        .catch((error) => {
+          this.logger.error(
+            `Error updating loan with ID ${id}: ${error?.message}`,
+            error?.stack,
+          );
+          throw error;
+        });
+    }
+
     return await this.loansRepository
       .update(id, updateLoanDto)
       .then(() => this.findOne(id))
