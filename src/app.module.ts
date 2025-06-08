@@ -20,6 +20,7 @@ import { JwtAuthGuard } from './auth/jwt-auth.guard';
       database: process.env.DATABASE_NAME || 'mydatabase',
       entities: [Client, Loan, AuthUser],
       logging: true,
+      ssl: true,
       synchronize: process.env.NODE_ENV !== 'production',
     }),
     AuthModule,
