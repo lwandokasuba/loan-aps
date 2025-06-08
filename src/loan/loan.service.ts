@@ -5,6 +5,7 @@ import { UpdateLoanDto } from './dto/update-loan.dto';
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Loan, LoanStatus } from './entities/loan.entity';
+import { Client } from 'src/client/entities/client.entity';
 
 @Injectable()
 export class LoanService {
@@ -21,8 +22,28 @@ export class LoanService {
     this.logger.log(
       `Creating a new loan with data: ${JSON.stringify(createLoanDto)}`,
     );
-    return await this.loansRepository
-      .save(createLoanDto)
+    return await this.loansRepository.manager
+      .transaction(async (transaction) => {
+        const client = await transaction.findOne(Client, {
+          where: { id: createLoanDto.client_id },
+          relations: { loans: true },
+        });
+
+        if (!client) {
+          throw new Error(`loan with ID ${createLoanDto.client_id} not found.`);
+        }
+
+        if (
+          createLoanDto.status === LoanStatus.ACTIVE &&
+          client?.loans?.some((loan) => loan.status === LoanStatus.ACTIVE)
+        ) {
+          throw new Error(
+            'Client already has an active loan. Cannot update loan to active',
+          );
+        }
+
+        return await transaction.save(Loan, createLoanDto);
+      })
       .catch((error: any) => {
         this.logger.error(
           `Error creating loan: ${error?.message}`,
