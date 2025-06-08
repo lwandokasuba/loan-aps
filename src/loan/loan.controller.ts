@@ -14,8 +14,15 @@ import { CreateLoanDto } from './dto/create-loan.dto';
 import { UpdateLoanDto } from './dto/update-loan.dto';
 import { TransformInterceptor } from 'src/utils/interceptors';
 import { BodyNotEmptyPipe } from 'src/utils/body-not-empty.pipe';
-import { ApiOperation, ApiResponse } from '@nestjs/swagger';
+import {
+  ApiBearerAuth,
+  ApiOperation,
+  ApiResponse,
+  ApiTags,
+} from '@nestjs/swagger';
 
+@ApiBearerAuth()
+@ApiTags('Loan')
 @Controller('loan')
 @UseInterceptors(TransformInterceptor)
 export class LoanController {
