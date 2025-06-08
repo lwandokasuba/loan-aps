@@ -1,19 +1,23 @@
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
-import { Injectable, Logger } from '@nestjs/common';
+import { Inject, Injectable, Logger, Scope } from '@nestjs/common';
 import { CreateLoanDto } from './dto/create-loan.dto';
 import { UpdateLoanDto } from './dto/update-loan.dto';
 import { DataSource, Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Loan, LoanStatus } from './entities/loan.entity';
 import { Client } from 'src/client/entities/client.entity';
+import { REQUEST } from '@nestjs/core';
+import { Request } from 'express';
+import { User } from 'src/users/entities/users.entity';
 
-@Injectable()
+@Injectable({ scope: Scope.REQUEST })
 export class LoanService {
   private readonly logger = new Logger(LoanService.name, {
     timestamp: true,
   });
 
   constructor(
+    @Inject(REQUEST) private request: Request & { user: User },
     @InjectRepository(Loan)
     private loansRepository: Repository<Loan>,
     private dataSource: DataSource,
@@ -38,6 +42,10 @@ export class LoanService {
         throw new Error(
           `loan with client ID ${createLoanDto.client_id} not found.`,
         );
+      }
+
+      if (client?.user_id !== this.request.user?.id) {
+        throw new Error(`This user can not create a loan for this client'`);
       }
 
       if (
