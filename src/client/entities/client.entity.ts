@@ -1,11 +1,9 @@
 import { Loan } from 'src/loan/entities/loan.entity';
-import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
+import { BaseEntity } from 'src/types';
+import { Column, Entity, OneToMany } from 'typeorm';
 
 @Entity('clients')
-export class Client {
-  @PrimaryGeneratedColumn('uuid')
-  id: string;
-
+export class Client extends BaseEntity {
   @Column({ type: 'varchar', length: 100 })
   name: string;
 

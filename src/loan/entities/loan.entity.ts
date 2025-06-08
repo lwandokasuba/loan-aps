@@ -1,5 +1,6 @@
 import { Client } from 'src/client/entities/client.entity';
-import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
+import { BaseEntity } from 'src/types';
+import { Column, Entity, ManyToOne } from 'typeorm';
 
 export enum LoanStatus {
   PENDING = 'pending',
@@ -9,10 +10,7 @@ export enum LoanStatus {
 }
 
 @Entity('loans')
-export class Loan {
-  @PrimaryGeneratedColumn('uuid')
-  id: string;
-
+export class Loan extends BaseEntity {
   @Column({ type: 'money' })
   amount: number;
 
