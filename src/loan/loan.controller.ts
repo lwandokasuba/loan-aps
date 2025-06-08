@@ -8,6 +8,7 @@ import {
   Delete,
   UseInterceptors,
   ParseUUIDPipe,
+  UseGuards,
 } from '@nestjs/common';
 import { LoanService } from './loan.service';
 import { CreateLoanDto } from './dto/create-loan.dto';
@@ -20,6 +21,7 @@ import {
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
+import { AdminRoleGuard } from 'src/auth/roles.guard';
 
 @ApiBearerAuth()
 @ApiTags('Loan')
@@ -39,6 +41,7 @@ export class LoanController {
   }
 
   @Get()
+  @UseGuards(AdminRoleGuard)
   @ApiOperation({ summary: 'Retrieve all loans' })
   @ApiResponse({
     status: 200,

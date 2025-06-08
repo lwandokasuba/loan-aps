@@ -14,6 +14,7 @@ async function bootstrap() {
   app.useGlobalFilters(new GlobalExceptionFilter());
 
   const config = new DocumentBuilder()
+    .addBearerAuth()
     .setTitle('Loan Application System')
     .setDescription('The loan application system API description')
     .setVersion('1.0')

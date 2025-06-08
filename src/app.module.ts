@@ -4,7 +4,10 @@ import { ClientModule } from './client/client.module';
 import { Client } from './client/entities/client.entity';
 import { LoanModule } from './loan/loan.module';
 import { Loan } from './loan/entities/loan.entity';
-import { APP_PIPE } from '@nestjs/core';
+import { APP_GUARD, APP_PIPE } from '@nestjs/core';
+import { AuthModule } from './auth/auth.module';
+import { AuthUser } from './users/entities/users.entity';
+import { JwtAuthGuard } from './auth/jwt-auth.guard';
 
 @Module({
   imports: [
@@ -15,10 +18,11 @@ import { APP_PIPE } from '@nestjs/core';
       username: process.env.DATABASE_USER || 'postgres',
       password: process.env.DATABASE_PASSWORD || 'password',
       database: process.env.DATABASE_NAME || 'mydatabase',
-      entities: [Client, Loan],
+      entities: [Client, Loan, AuthUser],
       logging: true,
       synchronize: process.env.NODE_ENV !== 'production',
     }),
+    AuthModule,
     ClientModule,
     LoanModule,
   ],
@@ -26,6 +30,10 @@ import { APP_PIPE } from '@nestjs/core';
     {
       provide: APP_PIPE,
       useClass: ValidationPipe,
+    },
+    {
+      provide: APP_GUARD,
+      useClass: JwtAuthGuard,
     },
   ],
 })

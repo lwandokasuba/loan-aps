@@ -1,6 +1,7 @@
 import { Loan } from 'src/loan/entities/loan.entity';
 import { BaseEntity } from 'src/types';
-import { Column, Entity, OneToMany } from 'typeorm';
+import { AuthUser } from 'src/users/entities/users.entity';
+import { Column, Entity, JoinColumn, ManyToOne, OneToMany } from 'typeorm';
 
 @Entity('clients')
 export class Client extends BaseEntity {
@@ -15,4 +16,11 @@ export class Client extends BaseEntity {
 
   @OneToMany(() => Loan, (loan) => loan.client)
   loans?: Loan[];
+
+  @Column({ type: 'uuid' })
+  user_id: string;
+
+  @ManyToOne(() => AuthUser, (authUser) => authUser.clients)
+  @JoinColumn({ name: 'user_id' })
+  user: AuthUser;
 }

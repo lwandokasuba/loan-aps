@@ -14,3 +14,9 @@ export class BaseEntity {
   @UpdateDateColumn({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   updatedDate: Date;
 }
+
+export class Session {
+  access_token: string;
+  createdDate: Date;
+  expiresIn: string;
+}

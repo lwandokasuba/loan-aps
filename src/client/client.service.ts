@@ -1,28 +1,36 @@
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
-import { Injectable, Logger } from '@nestjs/common';
+import { Inject, Injectable, Logger, Scope } from '@nestjs/common';
 import { CreateClientDto } from './dto/create-client.dto';
 import { UpdateClientDto } from './dto/update-client.dto';
 import { Client } from './entities/client.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
+import { REQUEST } from '@nestjs/core';
+import { Request } from 'express';
+import { User } from 'src/users/entities/users.entity';
 
-@Injectable()
+@Injectable({ scope: Scope.REQUEST })
 export class ClientService {
   private readonly logger = new Logger(ClientService.name, {
     timestamp: true,
   });
 
   constructor(
+    @Inject(REQUEST) private request: Request & { user: User },
     @InjectRepository(Client)
     private clientsRepository: Repository<Client>,
   ) {}
 
   async create(createClientDto: CreateClientDto) {
+    const user_id = this.request.user?.id;
+    if (!user_id) {
+      throw new Error('User is required');
+    }
     this.logger.log(
       `Creating a new client with data: ${JSON.stringify(createClientDto)}`,
     );
     return await this.clientsRepository
-      .save(createClientDto)
+      .save({ ...createClientDto, user_id })
       .catch((error: any) => {
         const message = `Error creating client: ${error?.detail ?? error?.message}`;
         this.logger.error(message, JSON.stringify(error));

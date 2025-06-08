@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unsafe-call */
 import { ApiProperty } from '@nestjs/swagger';
 import { IsMobilePhone, IsNotEmpty, IsString, Matches } from 'class-validator';
 
