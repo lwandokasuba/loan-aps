@@ -6,3 +6,8 @@ export interface IResponseError {
   path: string;
   method: string;
 }
+
+export interface IResponse<T> {
+  statusCode: number;
+  data: T;
+}

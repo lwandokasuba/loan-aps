@@ -6,6 +6,7 @@ import {
   Patch,
   Param,
   Delete,
+  UseInterceptors,
 } from '@nestjs/common';
 import {
   ApiBearerAuth,
@@ -16,10 +17,12 @@ import {
 import { ClientService } from './client.service';
 import { CreateClientDto } from './dto/create-client.dto';
 import { UpdateClientDto } from './dto/update-client.dto';
+import { TransformInterceptor } from 'src/utils/interceptors';
 
 @ApiBearerAuth()
 @ApiTags('Client')
 @Controller('client')
+@UseInterceptors(TransformInterceptor)
 export class ClientController {
   constructor(private readonly clientService: ClientService) {}
 
