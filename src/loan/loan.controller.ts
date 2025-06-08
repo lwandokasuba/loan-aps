@@ -8,6 +8,8 @@ import {
   Delete,
   UseInterceptors,
   ParseUUIDPipe,
+  HttpException,
+  HttpStatus,
 } from '@nestjs/common';
 import { LoanService } from './loan.service';
 import { CreateLoanDto } from './dto/create-loan.dto';
@@ -15,6 +17,7 @@ import { UpdateLoanDto } from './dto/update-loan.dto';
 import { TransformInterceptor } from 'src/utils/interceptors';
 import { BodyNotEmptyPipe } from 'src/utils/body-not-empty.pipe';
 import { ApiOperation, ApiResponse } from '@nestjs/swagger';
+import { LoanStatus } from './entities/loan.entity';
 
 @Controller('loan')
 @UseInterceptors(TransformInterceptor)
@@ -61,6 +64,22 @@ export class LoanController {
     @Param('id', ParseUUIDPipe) id: string,
     @Body(BodyNotEmptyPipe) updateLoanDto: UpdateLoanDto,
   ) {
+    if (updateLoanDto.status === LoanStatus.ACTIVE) {
+      const activeLoans = await this.loanService.findActive(id);
+      if (activeLoans?.length > 1) {
+        const message = `Client already has ${activeLoans?.length} ${activeLoans?.length === 1 ? 'loan' : 'loans'} active`;
+        throw new HttpException(
+          {
+            status: HttpStatus.BAD_REQUEST,
+            error: message,
+          },
+          HttpStatus.BAD_REQUEST,
+          {
+            cause: message,
+          },
+        );
+      }
+    }
     return await this.loanService.update(id, updateLoanDto);
   }
 
