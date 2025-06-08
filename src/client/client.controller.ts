@@ -65,7 +65,7 @@ export class ClientController {
     description: 'Successfully retrieved the client with their loans.',
   })
   async findOneWithLoans(@Param('id', ParseUUIDPipe) id: string) {
-    return await this.clientService.findOne(id);
+    return await this.clientService.findOne(id, true);
   }
 
   @Patch(':id')
