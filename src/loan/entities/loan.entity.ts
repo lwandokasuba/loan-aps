@@ -1,6 +1,6 @@
 import { Client } from 'src/client/entities/client.entity';
 import { BaseEntity } from 'src/types';
-import { Column, Entity, ManyToOne } from 'typeorm';
+import { Column, Entity, JoinColumn, ManyToOne } from 'typeorm';
 
 export enum LoanStatus {
   PENDING = 'pending',
@@ -24,5 +24,6 @@ export class Loan extends BaseEntity {
   client_id: string;
 
   @ManyToOne(() => Client, (client) => client.loans)
+  @JoinColumn({ name: 'client_id' })
   client?: Client;
 }

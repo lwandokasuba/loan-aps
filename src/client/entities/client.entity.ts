@@ -13,6 +13,6 @@ export class Client extends BaseEntity {
   @Column({ type: 'varchar', length: 15, unique: true })
   phone_number: string;
 
-  @OneToMany(() => Loan, (loan) => loan.client_id)
+  @OneToMany(() => Loan, (loan) => loan.client)
   loans?: Loan[];
 }
