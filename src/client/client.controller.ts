@@ -31,7 +31,7 @@ export class ClientController {
   @Post()
   @ApiOperation({ summary: 'Create a new client' })
   @ApiResponse({
-    status: 201,
+    status: 200,
     description: 'The client has been successfully created.',
   })
   async create(@Body() createClientDto: CreateClientDto) {
