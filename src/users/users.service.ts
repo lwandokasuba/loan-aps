@@ -6,7 +6,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import {
   comparePassword,
   generatePasswordHashAndSalt,
-} from 'src/utils/password';
+} from '../utils/password';
 
 @Injectable()
 export class UsersService {

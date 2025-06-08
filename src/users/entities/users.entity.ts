@@ -1,6 +1,6 @@
 import { OmitType } from '@nestjs/swagger';
-import { Client } from 'src/client/entities/client.entity';
-import { BaseEntity } from 'src/types';
+import { Client } from '../../client/entities/client.entity';
+import { BaseEntity } from '../../types';
 import { Column, Entity, OneToMany } from 'typeorm';
 
 export enum UserRole {

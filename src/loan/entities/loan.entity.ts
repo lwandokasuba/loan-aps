@@ -1,5 +1,5 @@
-import { Client } from 'src/client/entities/client.entity';
-import { BaseEntity } from 'src/types';
+import { Client } from '../../client/entities/client.entity';
+import { BaseEntity } from '../../types';
 import { Column, Entity, JoinColumn, ManyToOne } from 'typeorm';
 
 export enum LoanStatus {

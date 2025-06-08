@@ -1,6 +1,6 @@
-import { Loan } from 'src/loan/entities/loan.entity';
-import { BaseEntity } from 'src/types';
-import { AuthUser } from 'src/users/entities/users.entity';
+import { Loan } from '../../loan/entities/loan.entity';
+import { BaseEntity } from '../../types';
+import { AuthUser } from '../../users/entities/users.entity';
 import { Column, Entity, JoinColumn, ManyToOne, OneToMany } from 'typeorm';
 
 @Entity('clients')
