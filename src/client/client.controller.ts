@@ -7,6 +7,7 @@ import {
   Param,
   Delete,
   UseInterceptors,
+  ParseUUIDPipe,
 } from '@nestjs/common';
 import {
   ApiBearerAuth,
@@ -18,6 +19,7 @@ import { ClientService } from './client.service';
 import { CreateClientDto } from './dto/create-client.dto';
 import { UpdateClientDto } from './dto/update-client.dto';
 import { TransformInterceptor } from 'src/utils/interceptors';
+import { BodyNotEmptyPipe } from 'src/utils/body-not-empty.pipe';
 
 @ApiBearerAuth()
 @ApiTags('Client')
@@ -52,7 +54,7 @@ export class ClientController {
     status: 200,
     description: 'Successfully retrieved the client.',
   })
-  async findOne(@Param('id') id: string) {
+  async findOne(@Param('id', ParseUUIDPipe) id: string) {
     return await this.clientService.findOne(id);
   }
 
@@ -62,7 +64,7 @@ export class ClientController {
     status: 200,
     description: 'Successfully retrieved the client with their loans.',
   })
-  async findOneWithLoans(@Param('id') id: string) {
+  async findOneWithLoans(@Param('id', ParseUUIDPipe) id: string) {
     return await this.clientService.findOne(id);
   }
 
@@ -73,8 +75,8 @@ export class ClientController {
     description: 'The client has been successfully updated.',
   })
   async update(
-    @Param('id') id: string,
-    @Body() updateClientDto: UpdateClientDto,
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body(BodyNotEmptyPipe) updateClientDto: UpdateClientDto,
   ) {
     return await this.clientService.update(id, updateClientDto);
   }
@@ -85,7 +87,7 @@ export class ClientController {
     status: 200,
     description: 'The client has been successfully deleted.',
   })
-  async remove(@Param('id') id: string) {
+  async remove(@Param('id', ParseUUIDPipe) id: string) {
     return await this.clientService.remove(id);
   }
 }
