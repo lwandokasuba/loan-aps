@@ -2,7 +2,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { CreateLoanDto } from './dto/create-loan.dto';
 import { UpdateLoanDto } from './dto/update-loan.dto';
-import { Repository } from 'typeorm';
+import { DataSource, Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Loan, LoanStatus } from './entities/loan.entity';
 import { Client } from 'src/client/entities/client.entity';
@@ -16,41 +16,52 @@ export class LoanService {
   constructor(
     @InjectRepository(Loan)
     private loansRepository: Repository<Loan>,
+    private dataSource: DataSource,
   ) {}
 
   async create(createLoanDto: CreateLoanDto) {
     this.logger.log(
       `Creating a new loan with data: ${JSON.stringify(createLoanDto)}`,
     );
-    return await this.loansRepository.manager
-      .transaction(async (transaction) => {
-        const client = await transaction.findOne(Client, {
-          where: { id: createLoanDto.client_id },
-          relations: { loans: true },
-        });
+    let loan: Loan;
+    const queryRunner = this.dataSource.createQueryRunner();
 
-        if (!client) {
-          throw new Error(
-            `loan with client ID ${createLoanDto.client_id} not found.`,
-          );
-        }
-
-        if (
-          createLoanDto.status === LoanStatus.ACTIVE &&
-          client?.loans?.some((loan) => loan.status === LoanStatus.ACTIVE)
-        ) {
-          throw new Error(
-            'Client already has an active loan. Cannot create loan with status active',
-          );
-        }
-
-        return await transaction.save(Loan, createLoanDto);
-      })
-      .catch((error: any) => {
-        const message = `Error creating loan: ${error?.detail ?? error?.message}`;
-        this.logger.error(message, JSON.stringify(error));
-        throw new Error(message);
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
+    try {
+      const client = await queryRunner.manager.findOne(Client, {
+        where: { id: createLoanDto.client_id },
+        relations: { loans: true },
       });
+
+      if (!client) {
+        throw new Error(
+          `loan with client ID ${createLoanDto.client_id} not found.`,
+        );
+      }
+
+      if (
+        createLoanDto.status === LoanStatus.ACTIVE &&
+        client?.loans?.some((loan) => loan.status === LoanStatus.ACTIVE)
+      ) {
+        throw new Error(
+          'Client already has an active loan. Cannot create loan with status active',
+        );
+      }
+
+      loan = await queryRunner.manager.save(Loan, createLoanDto);
+
+      await queryRunner.commitTransaction();
+    } catch (error) {
+      await queryRunner.rollbackTransaction();
+      const message = `Error creating loan: ${error?.detail ?? error?.message}`;
+      this.logger.error(message, JSON.stringify(error));
+      throw new Error(message);
+    } finally {
+      await queryRunner.release();
+    }
+
+    return loan;
   }
 
   async findAll() {
@@ -89,54 +100,63 @@ export class LoanService {
       `Updating loan with ID ${id} with data: ${JSON.stringify(updateLoanDto)}`,
     );
 
-    return await this.loansRepository.manager
-      .transaction(async (transaction) => {
-        const loan = await transaction.findOne(Loan, {
-          where: { id },
-          relations: { client: true },
+    let loan: Loan;
+    const queryRunner = this.dataSource.createQueryRunner();
+
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
+    try {
+      const currentLoan = await queryRunner.manager.findOne(Loan, {
+        where: { id },
+        relations: { client: true },
+      });
+
+      if (!currentLoan) {
+        throw new Error(`loan with ID ${id} not found.`);
+      }
+
+      if (!currentLoan?.client_id || !currentLoan?.client) {
+        throw new Error(`loan with ID ${id} does not have a client.`);
+      }
+
+      if (updateLoanDto?.status === LoanStatus.ACTIVE) {
+        const activeLoans = await queryRunner.manager.find(Loan, {
+          where: {
+            status: LoanStatus.ACTIVE,
+            client_id: currentLoan.client_id,
+          },
         });
 
-        if (!loan) {
-          throw new Error(`loan with ID ${id} not found.`);
+        if (activeLoans?.length > 0) {
+          throw new Error(
+            'Client already has an active loan. Cannot update loan to active',
+          );
         }
+      }
 
-        if (!loan?.client_id || !loan?.client) {
-          throw new Error(`loan with ID ${id} does not have a client.`);
-        }
+      if (updateLoanDto?.amount) {
+        currentLoan.amount = updateLoanDto.amount;
+      }
+      if (updateLoanDto?.interest_rate) {
+        currentLoan.interest_rate = updateLoanDto.interest_rate;
+      }
+      if (updateLoanDto?.status) {
+        currentLoan.status = updateLoanDto.status;
+      }
 
-        if (updateLoanDto?.status === LoanStatus.ACTIVE) {
-          const activeLoans = await transaction.find(Loan, {
-            where: { status: LoanStatus.ACTIVE, client_id: loan.client_id },
-          });
+      loan = await queryRunner.manager.save(Loan, currentLoan);
 
-          if (activeLoans?.length > 0) {
-            throw new Error(
-              'Client already has an active loan. Cannot update loan to active',
-            );
-          }
-        }
+      await queryRunner.commitTransaction();
+    } catch (error) {
+      await queryRunner.rollbackTransaction();
+      const message = `Error creating loan: ${error?.detail ?? error?.message}`;
+      this.logger.error(message, JSON.stringify(error));
+      throw new Error(message);
+    } finally {
+      await queryRunner.release();
+    }
 
-        if (updateLoanDto?.amount) {
-          loan.amount = updateLoanDto.amount;
-        }
-        if (updateLoanDto?.interest_rate) {
-          loan.interest_rate = updateLoanDto.interest_rate;
-        }
-        if (updateLoanDto?.status) {
-          loan.status = updateLoanDto.status;
-        }
-
-        return await transaction.save(Loan, loan);
-      })
-      .then((loan) => {
-        this.logger.log(`Loan with ID ${id} updated successfully`);
-        return loan;
-      })
-      .catch((error) => {
-        const message = `Error updating loan with ID ${id}: ${error?.detail ?? error?.message}`;
-        this.logger.error(message, JSON.stringify(error));
-        throw new Error(message);
-      });
+    return loan;
   }
 
   async remove(id: string) {
