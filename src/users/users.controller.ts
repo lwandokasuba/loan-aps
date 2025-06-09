@@ -13,9 +13,9 @@ import {
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
-import { TransformInterceptor } from 'src/utils/interceptors';
+import { TransformInterceptor } from '../utils/interceptors';
 import { UsersService } from './users.service';
-import { AdminRoleGuard } from 'src/auth/roles.guard';
+import { AdminRoleGuard } from '../auth/roles.guard';
 
 @ApiBearerAuth()
 @ApiTags('User')

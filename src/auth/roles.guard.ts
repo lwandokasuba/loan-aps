@@ -8,7 +8,7 @@ import {
   HttpStatus,
 } from '@nestjs/common';
 import { Observable } from 'rxjs';
-import { UserRole } from 'src/users/entities/users.entity';
+import { UserRole } from '../users/entities/users.entity';
 
 @Injectable()
 export class AdminRoleGuard implements CanActivate {

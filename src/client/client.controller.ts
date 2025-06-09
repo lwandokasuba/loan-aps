@@ -18,8 +18,8 @@ import {
 import { ClientService } from './client.service';
 import { CreateClientDto } from './dto/create-client.dto';
 import { UpdateClientDto } from './dto/update-client.dto';
-import { TransformInterceptor } from 'src/utils/interceptors';
-import { BodyNotEmptyPipe } from 'src/utils/body-not-empty.pipe';
+import { TransformInterceptor } from '../utils/interceptors';
+import { BodyNotEmptyPipe } from '../utils/body-not-empty.pipe';
 
 @ApiBearerAuth()
 @ApiTags('Client')

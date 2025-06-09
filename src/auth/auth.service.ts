@@ -3,7 +3,7 @@ import { HttpException, HttpStatus, Injectable, Logger } from '@nestjs/common';
 import { UsersService } from '../users/users.service';
 import { JwtService } from '@nestjs/jwt';
 import { LoginDto } from './dto/login.dto';
-import { Session } from 'src/types';
+import { Session } from '../types';
 import { RegisterDto } from './dto/register.dto';
 
 @Injectable()

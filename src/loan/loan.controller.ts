@@ -13,15 +13,15 @@ import {
 import { LoanService } from './loan.service';
 import { CreateLoanDto } from './dto/create-loan.dto';
 import { UpdateLoanDto } from './dto/update-loan.dto';
-import { TransformInterceptor } from 'src/utils/interceptors';
-import { BodyNotEmptyPipe } from 'src/utils/body-not-empty.pipe';
+import { TransformInterceptor } from '../utils/interceptors';
+import { BodyNotEmptyPipe } from '../utils/body-not-empty.pipe';
 import {
   ApiBearerAuth,
   ApiOperation,
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
-import { AdminRoleGuard } from 'src/auth/roles.guard';
+import { AdminRoleGuard } from '../auth/roles.guard';
 
 @ApiBearerAuth()
 @ApiTags('Loan')

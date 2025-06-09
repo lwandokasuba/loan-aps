@@ -7,7 +7,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { REQUEST } from '@nestjs/core';
 import { Request } from 'express';
-import { User } from 'src/users/entities/users.entity';
+import { User } from '../users/entities/users.entity';
 
 @Injectable({ scope: Scope.REQUEST })
 export class ClientService {

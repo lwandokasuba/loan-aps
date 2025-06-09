@@ -5,10 +5,10 @@ import { UpdateLoanDto } from './dto/update-loan.dto';
 import { DataSource, Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Loan, LoanStatus } from './entities/loan.entity';
-import { Client } from 'src/client/entities/client.entity';
+import { Client } from '../client/entities/client.entity';
 import { REQUEST } from '@nestjs/core';
 import { Request } from 'express';
-import { User } from 'src/users/entities/users.entity';
+import { User } from '../users/entities/users.entity';
 
 @Injectable({ scope: Scope.REQUEST })
 export class LoanService {
