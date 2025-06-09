@@ -1,37 +1,36 @@
 <p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
+  <h1>Loan Application System</h1>
 </p>
-
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
-
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
 
 ## Description
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+This project implements a robust and simple Loan Application System backend. It is designed to manage clients and their loan applications, featuring secure authentication, specific business logic constraints, and comprehensive API documentation. The system is built using the [Nest](https://github.com/nestjs/nest) TypeScript backend framework, integrated with [TypeORM](https://github.com/typeorm/typeorm) for database interaction and PostgreSQL as the relational database.
 
 ## Project setup
+
+Install dependencies using the command below. If using pnpm, change `npm` to `pnpm`.
 
 ```bash
 $ npm install
 ```
 
+Create a `.env.local` file in the root directory of the project. This file will store your environment-specific variables, particularly database credentials and authentication secrets.
+
+```
+DATABASE_USER=
+DATABASE_PASSWORD=
+DATABASE_HOST=
+DATABASE_PORT=
+DATABASE_NAME=
+AUTH_SECRET=
+AUTH_EXPIRES=
+```
+
+Note: It is highly recommended to use PostgreSQL as the relational database for this application. Ensure your PostgreSQL server is running and accessible with the provided credentials.
+
 ## Compile and run the project
+
+Once the setup is complete, you can compile and run the application using the following commands:
 
 ```bash
 # development
@@ -43,59 +42,68 @@ $ npm run start:dev
 # production mode
 $ npm run start:prod
 
-# with .env file
+# with .env file (recommended)
 $ npm run start:env
+
+# watch mode with .env file
+$ npm run start:dev-env
 ```
 
-## Run tests
+## Swagger documentation
 
-```bash
-# unit tests
-$ npm run test
+An interactive API documentation is available via Swagger UI. After running the application (e.g., using npm run start:dev-env), open your web browser and navigate to:
 
-# e2e tests
-$ npm run test:e2e
+`http://localhost:8080/api`
 
-# test coverage
-$ npm run test:cov
+This interface allows you to view all available endpoints, their expected request bodies, response schemas, and even test them directly from your browser.
+All endpoints, except `POST /auth/register` and `POST /auth/login`, require authentication. You can obtain an accessToken by logging in via `POST /auth/login`. This token should then be used in the Authorization header for protected routes (e.g., `Bearer YOUR_ACCESS_TOKEN`). Some routes are additionally restricted to users with an `admin` role.
+
+## Models
+
+The core data models used in this application are defined below:
+
 ```
+export class BaseEntity {
+  id: string;
+  createdDate: Date;
+  updatedDate: Date;
+}
 
-## Deployment
+export enum UserRole {
+  ADMIN = 'admin',
+  GUEST = 'guest',
+  STAFF = 'staff',
+}
 
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
+export class AuthUser extends BaseEntity {
+  username: string;
+  passwordHash: string;
+  role: UserRole;
+  clients?: Client[];
+}
 
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
+export class Client extends BaseEntity {
+  name: string;
+  national_id: string;
+  phone_number: string;
+  loans?: Loan[];
+  user_id: string;
+  user: AuthUser;
+}
 
-```bash
-$ npm install -g @nestjs/mau
-$ mau deploy
+export enum LoanStatus {
+  PENDING = 'pending',
+  ACTIVE = 'active',
+  REJECTED = 'rejected',
+  COMPLETED = 'completed',
+}
+
+export class Loan extends BaseEntity {
+  amount: number;
+  interest_rate: number;
+  status: LoanStatus;
+  client_id: string;
+  client?: Client;
+}
+
 ```
-
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
-
-## Resources
-
-Check out a few resources that may come in handy when working with NestJS:
-
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
-
-## Support
-
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
-
-## Stay in touch
-
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
-
-## License
-
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
