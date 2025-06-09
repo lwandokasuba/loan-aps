@@ -5,11 +5,16 @@ import { LoanService } from './loan.service';
 describe('LoanController', () => {
   let controller: LoanController;
 
+  const mockLoanService = {};
+
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       controllers: [LoanController],
       providers: [LoanService],
-    }).compile();
+    })
+      .overrideProvider(LoanService)
+      .useValue(mockLoanService)
+      .compile();
 
     controller = module.get<LoanController>(LoanController);
   });
